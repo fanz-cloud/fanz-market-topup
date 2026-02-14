@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FanzMarket Ultimate</title>
+
+<style>
+body{
+margin:0;
+font-family:Segoe UI;
+background:#0f0f0f;
+color:white;
+transition:.3s;
+}
+
+body.light{
+background:#f5f7fa;
+color:#111;
+}
+
+body.light input,
+body.light select{
+background:white;
+color:black;
+border:1px solid #ccc;
+}
+
+body.light .game-card,
+body.light .nominal-card,
+body.light .history-item{
+background:white;
+color:black;
+}
+
+header{
+text-align:center;
+padding:20px;
+position:relative;
+}
+
+h1{color:#00ffff;}
+
+.toggle{
+position:absolute;
+right:15px;
+top:15px;
+padding:6px 12px;
+border:none;
+border-radius:15px;
+background:#00ffff;
+font-weight:bold;
+cursor:pointer;
+}
+
+.banner{
+margin:20px;
+padding:18px;
+border-radius:25px;
+background:linear-gradient(45deg,#00ffff,#0066ff);
+text-align:center;
+font-weight:bold;
+box-shadow:0 0 20px #00ffff;
+}
+
+.search-box{padding:0 20px;}
+.search-box input{
+width:100%;
+padding:12px;
+border-radius:20px;
+border:none;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+padding:20px;
+}
+
+.game-card{
+background:#1a1a1a;
+padding:18px;
+border-radius:25px;
+text-align:center;
+cursor:pointer;
+border:2px solid transparent;
+}
+
+.active-game{
+border:2px solid #00ffff;
+box-shadow:0 0 15px #00ffff;
+}
+
+.form{padding:20px;}
+
+input,select{
+width:100%;
+padding:14px;
+margin-bottom:15px;
+border-radius:20px;
+border:1px solid #333;
+background:#1c1c1c;
+color:white;
+}
+
+.nominal-list{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-bottom:20px;
+max-height:300px;
+overflow-y:auto;
+}
+
+.nominal-card{
+background:#1d1d1d;
+padding:15px;
+border-radius:20px;
+cursor:pointer;
+border:2px solid transparent;
+}
+
+.nominal-card p{
+margin:0;
+color:#00ffff;
+}
+
+.active-nominal{
+border:2px solid #00ffff;
+box-shadow:0 0 15px #00ffff;
+}
+
+.total{
+border:2px solid #00ffff;
+padding:15px;
+border-radius:20px;
+text-align:center;
+color:#00ffff;
+margin-bottom:15px;
+}
+
+button{
+width:100%;
+padding:14px;
+border-radius:20px;
+border:none;
+background:#00ffff;
+color:black;
+font-weight:bold;
+cursor:pointer;
+margin-bottom:10px;
+}
+
+.history{
+padding:20px;
+}
+
+.history-item{
+background:#1c1c1c;
+padding:10px;
+border-radius:15px;
+margin-bottom:10px;
+}
+
+.popup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#111;
+padding:25px;
+border-radius:20px;
+text-align:center;
+border:2px solid #00ffff;
+display:none;
+width:80%;
+}
+
+#loginModal{
+position:fixed;
+width:100%;
+height:100%;
+background:black;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.login-box{
+background:#1a1a1a;
+padding:25px;
+border-radius:20px;
+width:80%;
+}
+</style>
+</head>
+<body>
+
+<div id="loginModal">
+<div class="login-box">
+<h3>Login FanzMarket</h3>
+<input id="username" placeholder="Masukkan Username">
+<button onclick="login()">Masuk</button>
+</div>
+</div>
+
+<header>
+<button class="toggle" onclick="toggleMode()">Mode</button>
+<h1>Market Topup Fanz</h1>
+</header>
+
+<div class="banner">🔥 Promo Topup Termurah 🔥</div>
+
+<div class="search-box">
+<input placeholder="Cari Game..." onkeyup="searchGame(this.value)">
+</div>
+
+<div class="grid">
+<div class="game-card" onclick="pilihGame(this,'ml')">Mobile Legends</div>
+<div class="game-card" onclick="pilihGame(this,'ff')">Free Fire</div>
+<div class="game-card" onclick="pilihGame(this,'pubg')">PUBG</div>
+<div class="game-card" onclick="pilihGame(this,'codm')">CODM</div>
+<div class="game-card" onclick="pilihGame(this,'genshin')">Genshin</div>
+<div class="game-card" onclick="pilihGame(this,'hsr')">Honkai Star Rail</div>
+<div class="game-card" onclick="pilihGame(this,'roblox')">Roblox</div>
+<div class="game-card" onclick="pilihGame(this,'steam')">Steam</div>
+<div class="game-card" onclick="pilihGame(this,'higgs')">Higgs Domino</div>
+</div>
+
+<div class="form">
+<input id="userId" placeholder="User ID">
+
+<h3>Pilih Topup</h3>
+<div class="nominal-list"></div>
+
+<select id="payment" onchange="hitungTotal()">
+<option value="QRIS">QRIS (+500)</option>
+<option value="DANA">DANA (+500)</option>
+<option value="OVO">OVO (+500)</option>
+<option value="GOPAY">GOPAY (+500)</option>
+<option value="CASH">CASH (+1500)</option>
+</select>
+
+<div class="total" id="totalBox">Total: Rp 0</div>
+<button onclick="bayar()">Bayar Sekarang</button>
+
+<button onclick="hubungiWA1()">WA Admin 1</button>
+<button onclick="hubungiWA2()">WA Admin 2</button>
+<button onclick="hubungiTele()">Telegram</button>
+</div>
+
+<div class="history">
+<h3>Riwayat Transaksi</h3>
+<div id="historyBox"></div>
+</div>
+
+<div class="popup" id="popupBox">
+<h3>Transaksi Dibuat 🎉</h3>
+<p id="popupText"></p>
+<button onclick="tutupPopup()">OK</button>
+</div>
+
+<script>
+let selectedGame="",selectedNominal=0,selectedItem="";
+let transaksiList=JSON.parse(localStorage.getItem("trx"))||[];
+
+const dataTopup={
+ml:[["5 DM",2500],["12 DM",4000],["28 DM",8500],["36 DM",11000],["56 DM",16000],["85 DM",23500],["100 DM",27000],["144 DM",39000],["170 DM",46500],["240 DM",64000],["355 DM",94000],["425 DM",113000],["514 DM",133000],["712 DM",184000],["875 DM",218000],["1050 DM",266500],["1220 DM",310000],["1453 DM",372000],["1750 DM",442000],["2180 DM",525000],["2578 DM",626000],["4020 DM",961000],["7660 DM",1839000]],
+ff:[["5 Diamond",1000],["12 Diamond",2000],["20 Diamond",3500],["30 Diamond",5000],["50 Diamond",8000],["70 Diamond",10000],["100 Diamond",14000],["140 Diamond",19000],["150 Diamond",21000],["210 Diamond",28000],["355 Diamond",48000],["425 Diamond",56000],["500 Diamond",68000],["720 Diamond",95000],["860 Diamond",112000],["1000 Diamond",135000],["1075 Diamond",145000],["1440 Diamond",190000],["1450 Diamond",192000],["2000 Diamond",260000],["2180 Diamond",285000],["3640 Diamond",470000],["7290 Diamond",930000]],
+pubg:[["60 UC",15000],["325 UC",75000],["660 UC",155000]],
+codm:[["80 CP",15000],["420 CP",75000],["880 CP",145000]],
+genshin:[["60 GC",15000],["300 GC",75000],["980 GC",230000]],
+hsr:[["60 Jade",15000],["300 Jade",75000]],
+roblox:[["80 Robux",15000],["400 Robux",75000]],
+steam:[["IDR 12K",15000],["IDR 45K",50000]],
+higgs:[["1B Chip",15000],["2B Chip",30000]]
+};
+
+const feeAdmin={DANA:500,OVO:500,GOPAY:500,QRIS:500,CASH:1500};
+
+function login(){
+let user=document.getElementById("username").value;
+if(user==""){alert("Isi Username!");return;}
+localStorage.setItem("user",user);
+loginModal.style.display="none";
+}
+if(localStorage.getItem("user")){loginModal.style.display="none";}
+
+function toggleMode(){document.body.classList.toggle("light");}
+
+function searchGame(k){
+document.querySelectorAll(".game-card").forEach(c=>{
+c.style.display=c.innerText.toLowerCase().includes(k.toLowerCase())?"block":"none";
+});
+}
+
+function pilihGame(el,key){
+selectedGame=key;
+selectedNominal=0;
+document.querySelectorAll(".game-card").forEach(c=>c.classList.remove("active-game"));
+el.classList.add("active-game");
+loadNominal(key);
+}
+
+function loadNominal(key){
+let box=document.querySelector(".nominal-list");
+box.innerHTML="";
+dataTopup[key].forEach(item=>{
+box.innerHTML+=`
+<div class="nominal-card" onclick="pilihNominal(this,${item[1]},'${item[0]}')">
+<b>${item[0]}</b>
+<p>Rp ${item[1].toLocaleString("id-ID")}</p>
+</div>`;
+});
+}
+
+function pilihNominal(el,harga,item){
+selectedNominal=harga;
+selectedItem=item;
+document.querySelectorAll(".nominal-card").forEach(c=>c.classList.remove("active-nominal"));
+el.classList.add("active-nominal");
+hitungTotal();
+}
+
+function hitungTotal(){
+let metode=document.getElementById("payment").value;
+let fee=feeAdmin[metode]||0;
+let total=selectedNominal+fee;
+document.getElementById("totalBox").innerText="Total: Rp "+total.toLocaleString("id-ID");
+}
+
+function bayar(){
+if(selectedGame==""||selectedNominal==0){alert("Pilih dulu!");return;}
+
+let invoice="INV"+Date.now();
+let metode=document.getElementById("payment").value;
+let total=document.getElementById("totalBox").innerText;
+
+let data={invoice,game:selectedGame,item:selectedItem,total,tanggal:new Date().toLocaleString()};
+transaksiList.push(data);
+localStorage.setItem("trx",JSON.stringify(transaksiList));
+tampilkanHistory();
+
+let text=`Halo Admin, saya order:
+Invoice: ${invoice}
+Game: ${selectedGame}
+Item: ${selectedItem}
+${total}
+Metode: ${metode}`;
+
+window.open("https://wa.me/6287795237332?text="+encodeURIComponent(text));
+
+document.getElementById("popupText").innerText=text;
+popupBox.style.display="block";
+}
+
+function tampilkanHistory(){
+let box=document.getElementById("historyBox");
+box.innerHTML="";
+transaksiList.slice().reverse().forEach(t=>{
+box.innerHTML+=`<div class="history-item">
+<b>${t.invoice}</b><br>${t.game} - ${t.item}<br>${t.total}<br><small>${t.tanggal}</small>
+</div>`;
+});
+}
+tampilkanHistory();
+
+function hubungiWA1(){window.open("https://wa.me/6287795237332");}
+function hubungiWA2(){window.open("https://wa.me/6287856855898");}
+function hubungiTele(){window.open("https://t.me/FanzOfficial32");}
+function tutupPopup(){popupBox.style.display="none";}
+</script>
+
+</body>
+</html>
